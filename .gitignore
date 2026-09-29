@@ -1,0 +1,15 @@
+# Installed packages and build output. They're recreated by npm install and npm run build.
+node_modules/
+dist/
+build/
+.next/
+
+# Secrets. API keys go in .env, which stays on your computer.
+.env
+.env.*
+!.env.example
+
+# Editor and OS clutter
+.DS_Store
+Thumbs.db
+*.log

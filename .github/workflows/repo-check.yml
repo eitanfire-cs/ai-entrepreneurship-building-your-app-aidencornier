@@ -1,0 +1,59 @@
+# Checks your repository every time you push.
+#
+# Green check: no secrets committed, your app is at the top level, and (for Node apps) it builds.
+# Red X: click it, open the failed step, and read the message. It tells you what to fix.
+
+name: Repo check
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: repo-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No secrets committed
+        run: |
+          found=$(git ls-files | grep -E '(^|/)\.env(\.[^/]+)?$' | grep -vE '\.env\.example$' || true)
+          if [ -n "$found" ]; then
+            echo "::error::A .env file is committed: $found"
+            echo "Your API keys are now on GitHub. Revoke or regenerate each key at the service that"
+            echo "gave it to you, then run:  git rm --cached $found  and commit and push."
+            echo "See 'Need help?' in the assignment."
+            exit 1
+          fi
+          echo "No .env files committed."
+
+      - name: App is at the top level
+        id: layout
+        run: |
+          if [ -f package.json ] || [ -f index.html ]; then
+            echo "App files found at the top level."
+            exit 0
+          fi
+          nested=$(git ls-files | grep -E '(^|/)(package\.json|index\.html)$' | grep -v node_modules | head -1)
+          if [ -n "$nested" ]; then
+            echo "::error::Your app is inside a folder: found $nested"
+            echo "Move the app's files up so package.json (or index.html) sits next to README.md."
+            exit 1
+          fi
+          echo "::notice::No app code yet. That's expected until you copy your app in."
+
+      - uses: actions/setup-node@v4
+        if: hashFiles('package.json') != ''
+        with:
+          node-version: 22
+
+      - name: Build (Node apps only)
+        if: hashFiles('package.json') != ''
+        run: |
+          npm ci || npm install
+          npm run build --if-present
