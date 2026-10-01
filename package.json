@@ -1,0 +1,34 @@
+{
+  "name": "workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "*Replace everything in italics. Keep the headings.*",
+  "homepage": "https://github.com/eitanfire-cs/ai-entrepreneurship-building-your-app-aidencornier#readme",
+  "bugs": {
+    "url": "https://github.com/eitanfire-cs/ai-entrepreneurship-building-your-app-aidencornier/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eitanfire-cs/ai-entrepreneurship-building-your-app-aidencornier.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
+    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+  },
+  "dependencies": {
+    "@replit/connectors-sdk": "^0.4.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "typescript": "~5.9.3"
+  }
+}
