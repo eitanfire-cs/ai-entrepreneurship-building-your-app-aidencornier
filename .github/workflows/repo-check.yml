@@ -1,6 +1,7 @@
 # Checks your repository every time you push.
 #
 # Green check: no secrets committed, your app is at the top level, and (for Node apps) it builds.
+# Works for npm projects and for pnpm projects such as Replit's.
 # Red X: click it, open the failed step, and read the message. It tells you what to fix.
 
 name: Repo check
@@ -52,8 +53,40 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build (Node apps only)
+      # Replit builds pnpm workspaces, and their package.json refuses npm ("Use pnpm instead").
+      - name: Pick npm or pnpm
+        id: pm
         if: hashFiles('package.json') != ''
         run: |
-          npm ci || npm install
-          npm run build --if-present
+          if [ -f pnpm-workspace.yaml ] || [ -f pnpm-lock.yaml ] \
+             || grep -qE '"packageManager" *: *"pnpm' package.json \
+             || grep -q 'Use pnpm instead' package.json; then
+            echo "pm=pnpm" >> "$GITHUB_OUTPUT"
+            echo "This project uses pnpm. Replit projects do."
+            if [ ! -f pnpm-workspace.yaml ] && grep -q 'Use pnpm instead' package.json; then
+              echo "::error::This looks like a Replit project, but pnpm-workspace.yaml is missing."
+              echo "Only part of the project was copied. Download the whole project from Replit again"
+              echo "and copy EVERYTHING in the unzipped folder to the top level of your repository,"
+              echo "including pnpm-workspace.yaml and the artifacts folder. Keep this repository's"
+              echo "README.md and .gitignore."
+              exit 1
+            fi
+          else
+            echo "pm=npm" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build (Node apps only)
+        if: hashFiles('package.json') != ''
+        env:
+          # Replit's Vite configs refuse to start without these. Harmless for everything else.
+          PORT: "5173"
+          BASE_PATH: /
+        run: |
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then
+            npm install -g pnpm@10
+            pnpm install
+            pnpm run --if-present build
+          else
+            npm ci || npm install
+            npm run build --if-present
+          fi
