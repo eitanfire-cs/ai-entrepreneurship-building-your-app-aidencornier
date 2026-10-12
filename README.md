@@ -24,7 +24,7 @@ npm run dev
 *Change these if your app uses different commands. If it needs API keys, list their names (never
 the values) and say they go in a `.env` file.*
 
-![My app running locally]()
+![My app running locally](https://kommodo.ai/i/XoBmCN9z77ajdHeSSbCG)
 
 ## Update log
 
