@@ -45,4 +45,4 @@ the values) and say they go in a `.env` file.*
 
 ## The update I made by hand
 
-*Which update number, which file, and what your change does, in your own words.*
+I went into the App jsx to change the name of the How should you get to destination to DIA. This is an error I had to fix becuase the times were only semi accurately set up to DIA. I was trying to get the times set up to DIA but I ran out of time due to technical difficulties I had to get the app up and running.
