@@ -1,6 +1,6 @@
 # App name
 RoutWise
-*Replace everything in italics. Keep the headings.*
+
 
 ## Who it's for
 To help people choose the most efficent transportation to get to a certain place.
